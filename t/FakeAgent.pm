@@ -106,6 +106,7 @@ sub DeleteSection {
 sub NewImage {
   my($self, %data) = @_;
 
+  return undef if $data{content} eq 'invalid data';
   my $image = clone $self->GetAlbum->{album}{sections}{section}{images}{imageinfo}[-1];
   $image->{filename} = $data{filename};
   ++$image->{image_id};

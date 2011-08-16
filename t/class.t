@@ -106,7 +106,7 @@ ok( grep(/$newsection/, $album->names), "Section $newsection now exists" );
 $album->remove( $newsection );
 ok( ! grep(/$newsection/, $album->names), "Section $newsection no longer exists" );
 
-# Create, read and delete and image
+# Create, read and delete an image
 $rendition = $section->WebLarge;
 $renditionname = $rendition->name;
 my $newimage = 'testimage.png';
@@ -117,10 +117,11 @@ ok( ! grep(/$newimage/, $rendition->names), "Image $newimage doesn't yet exist" 
 ok( ! $rendition->add( $newimage, $imagedata ), "Cannot add to $renditionname rendition" );
 $rendition = $section->Full;
 $renditionname = $rendition->name;
-ok( $rendition->add( $newimage, $imagedata, '2009-09-15T00:00:00' ), "Added to $renditionname rendition" );
+ok( $rendition->add( $newimage, $imagedata, '2009-09-15T00:00:00' ), "Added $newimage to $renditionname rendition" );
 ok( grep(/$newimage/, $rendition->names), "Image $newimage now exists" );
 $rendition->remove( $newimage );
 ok( ! grep(/$newimage/, $rendition->names), "Image $newimage no longer exists" );
+ok( ! $rendition->add( $newimage, 'invalid data', '2009-09-15T00:00:00' ), "Invalid added to $renditionname rendition" );
 
 # Some nodes have attributes - some don't
 ok(   $account->attributes,   "Album has attributes"     );

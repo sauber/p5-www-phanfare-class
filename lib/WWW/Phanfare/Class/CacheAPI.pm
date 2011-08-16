@@ -19,12 +19,12 @@ sub geturl {
   my $super = "SUPER::geturl";
 
   # If call comes from SUPER, then use SUPER's own method
-  return $self->$super( $url, $post ) if caller eq 'WWW::Phanfare::API';
+  return eval { $self->$super( $url, $post ) } if caller eq 'WWW::Phanfare::API';
 
   my $cachestring = join ',', 'geturl', grep $_, $url, $post;
   my $result = $CACHE->get( $cachestring );
   unless ( $result ) {
-    $result = $self->$super( $url, $post );
+    $result = eval { $self->$super( $url, $post ) };
     $CACHE->set( $cachestring, $result );
   }
   return $result;
@@ -46,7 +46,7 @@ sub AUTOLOAD {
   my $result = $CACHE->thaw( $cachestring );
   unless ( $result ) {
     my $super = "SUPER::$method";
-    $result = $self->$super( @_ );
+    $result = eval { $self->$super( @_ ) };
     $CACHE->freeze( $cachestring, $result ) if substr $method, 0, 3 eq 'Get';
 
     # Delete cached parent results when creating/deleting objects
