@@ -1,5 +1,8 @@
 Revision history for WWW-Phanfare-Class
 
-0.01    Date/time
+0.02    2011-08-16
+        Don't die on upload of invalid image content.
+
+0.01    2011-06-25
         First version, released on an unsuspecting world.
 
