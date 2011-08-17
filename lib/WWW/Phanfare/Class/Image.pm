@@ -31,7 +31,7 @@ method _hidden ( Bool $value? ) {
     album_id   => $self->album->id,
     section_id => $self->section->id,
     image_id   => $self->id,
-    hide       => $value,
+    hidden     => $value,
   ) or return undef;
   return $self->_set_attr('hidden', $value);
 }
@@ -88,7 +88,7 @@ method _delete {
   );
 }
 
-# 'hide' and 'caption' are the only attributes that can be updated through API
+# 'hidden' and 'caption' are the only attributes that can be updated through API
 #
 method _update ( Str $key, Str $value ) {
   if ( $key eq 'caption' ) {

@@ -74,6 +74,11 @@ my $imagename = shift @imagenames;
 ok( my $image = $rendition->$imagename, 'Class has image object' );
 isa_ok( $image, 'WWW::Phanfare::Class::Image' );
 
+diag "Test Year: $yearname\n";
+diag "Test Album: $albumname\n";
+diag "Test Section: $sectionname\n";
+diag "Test Image: $imagename\n";
+
 # Make sure all image filenames are different
 my %U;
 my @uniqnames = grep { ! $U{$_}++ } @imagenames;
@@ -178,9 +183,9 @@ ok( $prevcap eq $image->_caption, "Image caption is restored" );
 # Create, read and delete hide flag
 my $prevhide = $image->_hidden;
 ok( defined $prevhide, "Previous hide flag exists" );
-ok( $image->_hidden( 1 ), "Set image hide flag 1" );
+ok( 1 == $image->_hidden( 1 ), "Set image hide flag 1" );
 ok( $image->_hidden == 1, "Get image hide flag 1" );
-ok( defined $image->_hidden( 0 ), "Set image hide flag 0" );
+ok( 0 ==  $image->_hidden( 0 ), "Set image hide flag 0" );
 ok( $image->_hidden == 0, "Get image hide flag 0" );
 ok( defined $image->_hidden( $prevhide ), "Restore image hide" );
 ok( $prevhide == $image->_hidden, "Hide flag resoted" );
