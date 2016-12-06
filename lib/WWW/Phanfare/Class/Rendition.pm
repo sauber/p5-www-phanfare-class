@@ -14,6 +14,7 @@ method _idnames {
 
   my @images;
   for my $image ( @$imageinfo ) {
+    next unless $image->{renditions}{rendition}; # Incomplete uploads
     # Merge imageinfo and rendition info
     $image = {
       %$image,
