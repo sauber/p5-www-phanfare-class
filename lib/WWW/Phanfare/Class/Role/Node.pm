@@ -16,8 +16,16 @@ has name => ( isa => 'Str', is => 'ro', required => 1 );
 has id   => ( isa => 'Int', is => 'ro' );
 
 # Get uid and agent from parent
+#
 method uid   { $self->parent->uid   }
 method api { $self->parent->api }
+
+# Name of object class
+#
+method class {
+  my $string = "$self";
+  $string =~ /::(\w+?)=HASH/ and return $1;
+}
 
 # Search through a data tree parsed from xml to find substructures or attributes
 #
