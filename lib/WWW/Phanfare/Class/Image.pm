@@ -45,7 +45,7 @@ method value ( Str $value? ) {
 
   # Read
   my $content = $self->api->geturl( $self->attribute('url') );
-  $self->size( length $content );
+  #$self->size( length $content );
   return $content;
 }
 
