@@ -44,10 +44,10 @@ sub AUTOLOAD {
   $CACHE->purge();
   my $cachestring = join ',', $method, @_;
   my $result = $CACHE->thaw( $cachestring );
-  unless ( $result ) {
+  unless ( $result and keys %$result ) {
     my $super = "SUPER::$method";
     $result = eval { $self->$super( @_ ) };
-    $CACHE->freeze( $cachestring, $result ) if substr $method, 0, 3 eq 'Get';
+    $CACHE->freeze( $cachestring, $result ) if substr($method, 0, 3) eq 'Get';
 
     # Delete cached parent results when creating/deleting objects
     # *** Caching NewAlbum,target_uid,9497612,album_name,Test2,album_start_date,1999-01-01T00:00:00,album_end_date,1999-12-31T23:59:59
