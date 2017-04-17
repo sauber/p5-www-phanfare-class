@@ -1,6 +1,7 @@
 package WWW::Phanfare::Class::Role::Node;
 use Moose::Role;
 use MooseX::Method::Signatures;
+use Time::Local;
 
 # All nodes in the tree must have a parent
 #
@@ -72,12 +73,20 @@ method _basename ( Str $filename ) {
 }
 
 # Convert unix time to phanfare time
+#   Example: 2011-08-23T05:59:28
 #
 method _phanfaretime ( Int $sec ) {
   my @t = gmtime $sec;
-  sprintf "%04s-02%-%02sT%02s:%02s:%02",
+  return sprintf "%04i-02%i-%02iT%02i:%02i:%02i",
     $t[5]+1900, $t[4]+1, $t[3],
     $t[2], $t[1], $t[0];
+}
+
+# Convert phanfare time to unix time
+#
+method _unixtime ( Str $time ) {
+  $time =~ /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/;
+  return timegm($6, $5, $4, $3, $2-1, $1-1900);
 }
 
 

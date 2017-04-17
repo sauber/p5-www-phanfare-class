@@ -14,6 +14,7 @@ requires 'WWW::Phanfare::API' => 0.08;
 requires 'MooseX::Method::Signatures';
 requires 'Cache::Memory';
 requires 'Date::Parse';
+requires 'Time::Local';
 
 auto_install;
 

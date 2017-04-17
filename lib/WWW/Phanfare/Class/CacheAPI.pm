@@ -1,14 +1,18 @@
 package WWW::Phanfare::Class::CacheAPI;
 use Carp;
 use Data::Dumper;
-use Cache::Memory;
+#use Cache::Memory;
+use Cache::File;
 
 use base qw( WWW::Phanfare::API );
 our $AUTOLOAD;
 
-our $CACHE = Cache::Memory->new(
+#our $CACHE = Cache::Memory->new(
+our $CACHE = Cache::File->new(
   namespace       => 'WWW::Phanfare::Class',
-  default_expires => '30 sec',
+  #default_expires => '30 sec',
+  default_expires => '120 hours',
+  cache_root => '/tmp/pfcache',
 );
 
 # Load image content, and cache it
