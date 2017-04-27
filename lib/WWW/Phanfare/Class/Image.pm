@@ -49,6 +49,10 @@ method value ( Str $value? ) {
   return $content;
 }
 
+method save ( Str $file ) {
+  $self->api->geturl( $self->attribute('url'), undef, $file );
+}
+
 # Which album, section and rendition does photo belong to
 #
 method album     { $self->parent->parent->parent }

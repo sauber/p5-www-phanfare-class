@@ -18,9 +18,12 @@ our $CACHE = Cache::File->new(
 # Load image content, and cache it
 #
 sub geturl {
-  my($self,$url,$post) = @_;
+  my($self,$url,$post,$file) = @_;
 
   my $super = "SUPER::geturl";
+
+  # Don't cache files
+  return eval { $self->$super( $url, $post, $file ) } if $file;
 
   # If call comes from SUPER, then use SUPER's own method
   return eval { $self->$super( $url, $post ) } if caller eq 'WWW::Phanfare::API';
