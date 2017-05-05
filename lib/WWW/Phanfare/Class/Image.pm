@@ -49,8 +49,14 @@ method value ( Str $value? ) {
   return $content;
 }
 
+# Save image straigh to file instead of variable
 method save ( Str $file ) {
-  $self->api->geturl( $self->attribute('url'), undef, $file );
+  my $url = $self->attribute('url');
+  unless ( $url ) {
+    warn "$file has no URL\n";
+    return;
+  }
+  $self->api->geturl( $url, undef, $file );
 }
 
 # Which album, section and rendition does photo belong to

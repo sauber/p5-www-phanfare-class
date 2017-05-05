@@ -30,24 +30,24 @@ sub account {
 }
 
 sub hdump {
-    my $offset = 0;
-    my(@array,$format);
-    foreach my $data (unpack("a16"x(length($_[0])/16)."a*",$_[0])) {
-        my($len)=length($data);
-        if ($len == 16) {
-            @array = unpack('N4', $data);
-            $format="0x%08x (%05d)   %08x %08x %08x %08x   %s\n";
-        } else {
-            @array = unpack('C*', $data);
-            $_ = sprintf "%2.2x", $_ for @array;
-            push(@array, '  ') while $len++ < 16;
-            $format="0x%08x (%05d)" .
-               "   %s%s%s%s %s%s%s%s %s%s%s%s %s%s%s%s   %s\n";
-        } 
-        $data =~ tr/\0-\37\177-\377/./;
-        printf $format,$offset,$offset,@array,$data;
-        $offset += 16;
-    }
+  my $offset = 0;
+  my(@array,$format);
+  foreach my $data (unpack("a16"x(length($_[0])/16)."a*",$_[0])) {
+    my($len)=length($data);
+    if ($len == 16) {
+      @array = unpack('N4', $data);
+      $format="0x%08x (%05d)   %08x %08x %08x %08x   %s\n";
+    } else {
+      @array = unpack('C*', $data);
+      $_ = sprintf "%2.2x", $_ for @array;
+      push(@array, '  ') while $len++ < 16;
+      $format="0x%08x (%05d)" .
+         "   %s%s%s%s %s%s%s%s %s%s%s%s %s%s%s%s   %s\n";
+    } 
+    $data =~ tr/\0-\37\177-\377/./;
+    printf $format,$offset,$offset,@array,$data;
+    $offset += 16;
+  }
 }
 
 # Create folder for object
@@ -83,48 +83,28 @@ sub yamlsave {
   my($file, $data) = @_;
 
   utf8::downgrade($file);
-  #print "yamlsave file $file\n";
-  #utf8::encode($file);
-  if ( -f $file && Compare( LoadFile($file), $data ) ) {
-    #print "Kept $file\n";
-  } else {
+
+  # Load data
+  if ( -f $file ) {
+    my $olddata;
     try {
-      #DumpFile $file, $data;
-      my $yaml = Dump $data;
-      write_file( $file, { binmode => ':utf8' }, $yaml );
-      #print "Saved $file\n";
-    } catch {
-      #die "Cannot parse yaml: " . p $data;
-      #utf8::encode($file);
-      print "YAML save failed. Saving to $file.dump\n";
-      #open FH, '>', "$file.dump";
-      #  print FH Dumper $data;
-      #close FH;
-      my $dirname = dirname("$file.dump");
-      #utf8::encode($dirname);
-      #my $static = '/media/photos/phanfare/sauber/2006/Junette^ Vi er kommet på Youtube/Main Section';
-      #utf8::encode($static);
-      #print "yamlsave static  $static\n";
-      print "yamlsave dirname $dirname\n";
-      #hdump($static);
-      #hdump($dirname);
-      #print "static  is utf8: " . utf8::is_utf8($static)  . "\n";
-      print "dirname is utf8: " . utf8::is_utf8($dirname) . "\n";
-      #print "static and dirname differs\n" if $static ne $dirname;
-      #opendir DH, $dirname; close DH;
-      #if ( $dirname =~ /Main Section/ ) {
-      #  opendir DH, $static;
-      #    for my $direntry ( readdir DH ) {
-      #      print "$direntry\n";
-      #      print "direntry is utf8: " . utf8::is_utf8($direntry) . "\n";
-      #    }
-      #  closedir DH;
-      #}
-      #my @stat = stat($dirname);
-      #p @stat;
-      write_file( "$file.dump", { binmode => ':utf8' }, Dumper($data) );
+      $olddata = LoadFile($file);
     };
+    return if Compare( $olddata, $data );
+    #print "Kept $file\n";
   }
+
+  # Save data
+  try {
+    my $yaml = Dump $data;
+    write_file( $file, { binmode => ':utf8' }, $yaml );
+  } catch {
+    print "YAML save failed. Saving to $file.dump\n";
+    my $dirname = dirname("$file.dump");
+    print "yamlsave dirname $dirname\n";
+    print "dirname is utf8: " . utf8::is_utf8($dirname) . "\n";
+    write_file( "$file.dump", { binmode => ':utf8' }, Dumper($data) );
+  };
 }
 
 # Save attributes as yaml file
@@ -143,34 +123,27 @@ sub metasave {
 # Save image attributes and image
 #
 sub imgsave {
-  my $img = shift;
+  my($img, $imagename) = @_;;
   my $base = mkfolder($img->section);
-  #print "imgsave base $base\n";
-  my $file = $img->_basename( $img->attribute('filename') );
-  #print "imgsave file $file\n";
+  #my $file = #$img->_basename( $img->attribute('filename') );
+  my $file = $imagename;
   $file =~ s,[:/],~,g; # / and : not allowed in file names
   my $imgpath = "$base/$file";
-  #print "imgsave imgpath $imgpath\n";
   my $metpath = $imgpath; $metpath =~ s/\.[^\.]+$/.yaml/;
-  #print "imgsave metpath $metpath\n";
-  #utf8::encode($imgpath);
   yamlsave($metpath, $img->{_attr});
-  # Download and save file if necessary
   utf8::downgrade($imgpath);
   if ( -f $imgpath and -s $imgpath == $img->attribute('filesize') ) {
     #print "Keep: $imgpath\n";
   } else {
-    print "Save: $imgpath\n";
-    #my $raw = $img->value or die;
-    #write_file( $imgpath, {binmode => ':raw'}, \$raw );
-    #print "imgpath $imgpath is utf8: " . utf8::is_utf8($imgpath) . "\n";
-    $img->save( $imgpath ) or die;
-  }
-  # Set timestamp of file
-  my $sec = $img->_unixtime( $img->{_attr}{created_date} );
-  if ( $sec != (stat($imgpath))[9] ) {
-    #print "Save: set time to $sec\n";
-    utime time, $sec, $imgpath;
+    printf "Save %s: %s\n", $img->name, $imgpath;
+    if ( $img->save( $imgpath ) ) {
+      # Set timestamp of file
+      my $sec = $img->_unixtime( $img->{_attr}{created_date} );
+      if ( $sec != (stat($imgpath))[9] ) {
+        #print "Save: set time to $sec\n";
+        utime time, $sec, $imgpath;
+      }
+    }
   }
 }
 
@@ -193,24 +166,19 @@ sub traverse {
       my @albumlist =   $startfolder[2]
                     ? ( $startfolder[2] )
                     : ( shuffle $year->names );
-      #for my $albumname ( grep /Junette/, @albumlist ) {
       for my $albumname ( @albumlist ) {
         my $utf8_albumname = $albumname;
         utf8::encode($utf8_albumname);
         print "  album: $utf8_albumname\n";
         my $album = $year->get( $albumname );
-        #p $album->{_attr};
         metasave( $album );
-        #next; # XXX
         my @sectionlist =   $startfolder[3]
                         ? ( $startfolder[3] )
                         : ( shuffle $album->names );
         for my $sectionname ( @sectionlist ) {
           print "   section: $sectionname\n";
           my $section = $album->get( $sectionname );
-          #p $section->{_attr};
           metasave( $section );
-          #next; # XXX
           my $original = $section->get('Full');
           my @imagelist =   $startfolder[4]
                         ? ( $startfolder[4] )
@@ -218,8 +186,7 @@ sub traverse {
           for my $imagename ( @imagelist ) {
             print "    image: $imagename\n";
             my $image = $original->get($imagename) or die;
-            imgsave( $image );
-            #p $image->{_attr};
+            imgsave( $image, $imagename );
           }
         }
       }

@@ -18,7 +18,7 @@ has id   => ( isa => 'Int', is => 'ro' );
 
 # Get uid and agent from parent
 #
-method uid   { $self->parent->uid   }
+method uid { $self->parent->uid }
 method api { $self->parent->api }
 
 # Name of object class
